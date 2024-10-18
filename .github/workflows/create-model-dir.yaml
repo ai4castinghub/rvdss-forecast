@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'model-metadata/*.yaml'
+      - 'model-metadata/*.yml'
   workflow_dispatch:
 
 jobs:
