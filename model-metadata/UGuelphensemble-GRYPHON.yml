@@ -39,7 +39,7 @@ website_url: "https://sites.google.com/site/mgcojocarumath/networks-and-dynamics
 license: "CC-BY-4.0"
 designated_model: true
 methods: "Ensemble"
-data_inputs: "hospitalization data for US "
+data_inputs: "hospitalization US "
 methods_long: ""
 ensemble_of_models: True
 ensemble_of_hub_models: True
