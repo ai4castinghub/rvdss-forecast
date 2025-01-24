@@ -16,7 +16,7 @@ model_contributors: [
   }
 ]
 license: "CC-BY-4.0"
-designated_model: true
+designated_model: false
 methods: "Quantiles of historic targets in a sliding window"
 data_inputs: "Respiratory Reports of Influenza, RSV and COVID-19 Detections"
 methods_long: "Use target values from historic seasons in a window around the target week to form quantiles, subtracting off the median and adding location specific medians"

@@ -1,0 +1,24 @@
+team_name: "University of British Columbia Statistics"
+team_abbr: "UBCStat"
+model_name: "Climatological-ARX Ensemble"
+model_abbr: "ARX_Ensemble"
+model_version: "1.0"
+model_contributors: [
+  {
+    "name": "Christine Chuong",
+    "affiliation": "University of British Columbia",
+    "email": "christine.chuong@stat.ubc.ca"
+  },
+  {
+    "name": "Daniel McDonald",
+    "affiliation": "University of British Columbia",
+    "email": "daniel@stat.ubc.ca"
+  }
+]
+license: "CC-BY-4.0"
+designated_model: true
+methods: "Ensemble of climatalogical forecaster and ARX model with forecasted climate medians"
+data_inputs: "Respiratory Reports of Influenza, RSV and COVID-19 Detections"
+methods_long: "Ensemble of climitalogical forecasts and ARX model that uses target values and forecasted medians from climitalogical forecasts"
+ensemble_of_models: True
+ensemble_of_hub_models: False

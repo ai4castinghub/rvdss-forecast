@@ -1,0 +1,38 @@
+name: Generate Weekly Forecast Reports
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * SUN'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04 #self-hosted # R not supported for ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      
+      - name: Install Dependencies
+        run: pip install -r scripts/req-2.txt
+      
+      - name: Download latest data
+        run: python scripts/rvdss-report.py
+
+      - name: Add new files
+        run: git add weekly-forecast-reports/  
+      
+      - name: Commit results
+        run: |
+          git config --local user.name "$GITHUB_ACTOR"
+          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git commit -am 'Generate Weekly Forecast Reports' || echo "No changes to commit"
+          git push origin || echo "No changes to commit"
