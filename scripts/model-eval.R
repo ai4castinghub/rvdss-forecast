@@ -5,7 +5,7 @@ library(MMWRweek)
 
 # Load and process dataset
 cat("Loading rvdss data...\n") #rvdss/
-df_hhs <- read_csv('rvdss/target-data/season_2024_2025/target_rvdss_data.csv') %>%
+df_hhs <- read_csv('rvdss/target-data/season_2025_2026/target_rvdss_data.csv') %>%
   mutate(date = as_date(time_value, format = "%d-%m-%Y"),
          mmwr_week = MMWRweek(time_value)$MMWRweek) %>%
   arrange(time_value)
@@ -19,7 +19,7 @@ model_names <- list.dirs(model_output_dir, full.names = FALSE, recursive = FALSE
 print(model_names) 
 
 current_reference_date <- floor_date(Sys.Date(), unit = "week") + days(6)
-start_reference_date <- as_date("2024-10-19")
+start_reference_date <- as_date("2025-11-20")
 all_ref_dates <- seq(start_reference_date, current_reference_date, by = "7 days")
 print(all_ref_dates)  # Check the date sequence
 
@@ -182,8 +182,8 @@ if (length(WIS_all) == 0 || is.null(WIS_all) || nrow(WIS_all) == 0) {
            AE = ifelse(AE < 0, NA, round(AE, 3)),
            MSE = ifelse(MSE < 0, NA, round(MSE, 3)))
   
-  write_csv(WIS_average, "rvdss-output/WIS_average.csv")
-  write_csv(WIS_all, "rvdss-output/all_rvdss_scores.csv")
+  write_csv(WIS_average, "rvdss-output/WIS_average_2025-26.csv")
+  write_csv(WIS_all, "rvdss-output/all_rvdss_scores_2025-26.csv")
 }
 
 # Aggregate model output with additional checks
@@ -221,6 +221,6 @@ cat("Combining model data...\n")
 concatenated_data <- bind_rows(all_model_data) %>%
   filter(!is.na(reference_date), !is.na(target_end_date))
 
-write_csv(concatenated_data, "rvdss-output/concatenated_model_output.csv")
+write_csv(concatenated_data, "rvdss-output/concatenated_model_output_2025-26.csv")
 
 cat("Script completed successfully.\n")
