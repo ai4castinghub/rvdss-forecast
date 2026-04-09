@@ -19,7 +19,7 @@ model_names <- list.dirs(model_output_dir, full.names = FALSE, recursive = FALSE
 print(model_names) 
 
 current_reference_date <- floor_date(Sys.Date(), unit = "week") + days(6)
-start_reference_date <- as_date("2025-11-20")
+start_reference_date <- as_date("2025-11-22")
 all_ref_dates <- seq(start_reference_date, current_reference_date, by = "7 days")
 print(all_ref_dates)  # Check the date sequence
 
