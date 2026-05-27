@@ -88,6 +88,7 @@ colnames(model_op)[colnames(model_op) == "model"] <- "model_id"
 
 # Filter and create ensemble
 ref_date <- lubridate::ceiling_date(Sys.Date(), "week") - days(1) - weeks(1)
+print(ref_date)
 model_outputs <- model_op |>
   filter(reference_date == ref_date) |>
   filter(model_id != 'AI4Casting_Hub-Quantile_Baseline') |>

@@ -18,7 +18,7 @@ model_output_dir <- "rvdss/model-output"
 model_names <- list.dirs(model_output_dir, full.names = FALSE, recursive = FALSE)
 print(model_names) 
 
-current_reference_date <- floor_date(Sys.Date(), unit = "week") + days(6)
+current_reference_date <- as_date("2026-05-16") #floor_date(Sys.Date(), unit = "week") + days(6)
 start_reference_date <- as_date("2025-11-22")
 all_ref_dates <- seq(start_reference_date, current_reference_date, by = "7 days")
 print(all_ref_dates)  # Check the date sequence
@@ -97,8 +97,8 @@ WIS <- function(single_forecast, model, date, forecast_date, region, tid, j) {
 for (reference_date in all_ref_dates) {
   reference_date <- as_date(reference_date)
   # Removing just the 2024-12-28 date from evaluations
-  if (reference_date == as_date('2024-12-28')) {
-    next 
+  if (reference_date == as_date('2025-12-30') || reference_date == as_date('2025-12-23') || reference_date == as_date('2026-04-04')) {
+    next
   }
   
   for (model in model_names) { 
