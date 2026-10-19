@@ -1,11 +1,11 @@
 {
-    "schema_version": "https://raw.githubusercontent.com/hubverse-org/schemas/main/v5.0.0/tasks-schema.json",
+    "schema_version": "https://raw.githubusercontent.com/hubverse-org/schemas/main/v6.0.0/tasks-schema.json",
     "rounds": [
         {
             "round_id_from_variable": true,
             "round_id": "reference_date",
             "model_tasks": [
-                {   // influenza
+                {
                     "task_ids": {
                         "reference_date": {
                             "required": null,
@@ -31,7 +31,7 @@
                         },
                         "target": {
                             "required": null,
-                            "optional": ["pct wk flu lab det"] // percentage of weekly influenza lab detections
+                            "optional": ["pct wk flu lab det"]
                         },
                         "horizon": {
                             "required": null,
@@ -112,7 +112,7 @@
                         }
                     ]
                 },
-                {   // covid
+                {
                     "task_ids": {
                         "reference_date": {
                             "required": null,
@@ -138,7 +138,7 @@
                         },
                         "target": {
                             "required": null,
-                            "optional": ["pct wk covid lab det"] //weekly covid lab detections
+                            "optional": ["pct wk covid lab det"]
                         },
                         "horizon": {
                             "required": null,
@@ -219,7 +219,7 @@
                         }
                     ]
                 },
-                {   // rsv
+                {
                     "task_ids": {
                         "reference_date": {
                             "required": null,
@@ -245,7 +245,7 @@
                         },
                         "target": {
                             "required": null,
-                            "optional": ["pct wk rsv lab det"] //weekly rsv lab detections
+                            "optional": ["pct wk rsv lab det"]
                         },
                         "horizon": {
                             "required": null,
