@@ -132,7 +132,7 @@ For example, if your working directory is the root of the hub repository, you ca
 library(hubValidations)
 hubValidations::validate_submission(
     hub_path=".",
-    file_path="F-trends/2024-11-12-F-trends.csv")
+    file_path="F-trends/2026-10-24-F-trends.csv")
 ```
 
 If all is well, you should see output similar to the following:

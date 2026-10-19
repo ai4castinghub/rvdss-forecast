@@ -21,6 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python for the 2026-27 deadline check
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       # Set up R
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -66,6 +71,10 @@ jobs:
             echo "All changes are within allowed directories."
           fi
 
+      - name: Check 2026-27 submission deadline
+        if: github.event_name == 'pull_request'
+        run: python scripts/check_submission_deadline.py
+
       # ----------  validations  ----------
 
       - name: Run validations
@@ -77,7 +86,9 @@ jobs:
           v <- hubValidations::validate_pr(
               gh_repo = Sys.getenv("GITHUB_REPOSITORY"),
               pr_number = Sys.getenv("PR_NUMBER"),
-              skip_submit_window_check = FALSE
+              # The preceding check uses the PR event time, so delayed CI runs
+              # do not reject forecasts submitted before 23:30 Toronto time.
+              skip_submit_window_check = TRUE
           )
           hubValidations::check_for_errors(v, verbose = TRUE)
         shell: Rscript {0}

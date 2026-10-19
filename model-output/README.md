@@ -1,6 +1,6 @@
 # Model Outputs Folder Overview
 
-This folder contains subdirectories for each model, which hold the submitted model output files. The structure and contents of these directories follow the [model output guidelines in our documentation]([https://hubdocs.readthedocs.io/en/latest/format/model-output.html](https://hubverse.io/en/latest/user-guide/model-output.html)). Below, we outline instructions specifically for AI4Casting Hub submissions.
+This folder contains subdirectories for each model, which hold the submitted model output files. The structure and contents of these directories follow the [model output guidelines in the Hubverse documentation](https://docs.hubverse.io/en/latest/user-guide/model-output.html). Below, we outline instructions specifically for AI4Casting Hub submissions.
 
 # Data Submission Instructions
 
@@ -22,7 +22,7 @@ Forecasts are quantitative predictions about data to be observed in the future. 
 
 ## Target Data
 
-This project focuses on percentage of positive lab detection tests data for COVID-19, influenza, and RSV, as reported in the [Respiratory Virus Detection Surveillance System](https://www.canada.ca/en/public-health/services/surveillance/respiratory-virus-detections-canada.html). This data serves as the target ("gold standard") for forecasts. Further details can be found in the [target-data folder README](../target-data/season_2024_2025/README.md).
+This project focuses on percentage of positive lab detection tests data for COVID-19, influenza, and RSV, as reported in the [Respiratory Virus Detection Surveillance System](https://www.canada.ca/en/public-health/services/surveillance/respiratory-virus-detections-canada.html). This data serves as the target ("gold standard") for forecasts. Further details can be found in the [target-data folder README](../target-data/season_2026_2027/README.md).
 
 ## Data Formatting
 
@@ -61,7 +61,7 @@ Where:
 - `team` is the team name
 - `model` is the model name
 
-The `YYYY-MM-DD` date should be the Saturday following the submission date and match the `reference_date` inside the file. The `team` and `model` in the filename must match the subdirectory names.
+The `YYYY-MM-DD` date should be the current round's Saturday (the same Saturday for a Saturday submission) and match the `reference_date` inside the file. The `team` and `model` in the filename must match the subdirectory names.
 
 ## Forecast File Format
 
@@ -78,11 +78,11 @@ The forecast file should be a CSV with the following columns:
 
 No additional columns are allowed.
 
-Each row in the file represents a quantile or rate-trend prediction for a specific location, date, and horizon.
+Each row in the file represents a quantile prediction for a specific location, date, and horizon.
 
 ### `reference_date`
 
-This date (in `YYYY-MM-DD` format) indicates when the forecast is made. It should always be the Saturday following the submission date.
+This date (in `YYYY-MM-DD` format) indicates when the forecast is made. It should be the current round's Saturday, whether the file is submitted on Friday or Saturday.
 
 ### `target`
 
@@ -125,17 +125,17 @@ Values in the `value` column are non-negative numbers indicating the "quantile" 
 
 ### Example tables
 
-**Table 1:** This table represents a forecast for the week ending on 2024-10-12 for percentage positive flu lab detections in the Ontario province. The forecast includes quantile predictions ranging from the 2.5th to the 97.5th percentiles. The horizon of -1 indicates this is a hindcast for the previous week relative to the reference_date of 2024-10-19.
+**Table 1:** This table represents a forecast for the week ending on 2026-10-17 for percentage positive flu lab detections in the Ontario province. The forecast includes quantile predictions ranging from the 2.5th to the 97.5th percentiles. The horizon of -1 indicates this is a hindcast for the previous week relative to the reference_date of 2026-10-24.
 
 | reference_date | target             | horizon | location | target_end_date | output_type | output_type_id | value |
 |----------------|--------------------|---------|----------|-----------------|-------------|----------------|-------|
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.025          | 3.0   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.1            | 3.2   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.25           | 3.3   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.5            | 3.5   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.75           | 3.7   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.9            | 3.8   |
-| 2024-10-19     | pct wk flu lab det | -1      | on       | 2024-10-12      | quantile    | 0.975          | 4.0   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.025          | 3.0   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.1            | 3.2   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.25           | 3.3   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.5            | 3.5   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.75           | 3.7   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.9            | 3.8   |
+| 2026-10-24     | pct wk flu lab det | -1      | on       | 2026-10-17      | quantile    | 0.975          | 4.0   |
 
 
 
@@ -173,17 +173,17 @@ For example, if your working directory is the root of the hub repository, you ca
 library(hubValidations)
 hubValidations::validate_submission(
     hub_path=".",
-    file_path="F-trends/2024-11-12-F-trends.csv")
+    file_path="F-trends/2026-10-24-F-trends.csv")
 ```
 The function returns the output of each validation check.
 
 If all is well, all checks should either be prefixed with a `✔` indicating success or `ℹ` indicating a check was skipped, e.g.:
 ```
-✔ 2024-11-12-F-trends.csv: File exists at path model-output/F-trends/2024-11-12-F-trends.csv.
-✔ 2024-11-12-F-trends.csv: File name "2022-10-22-team1-goodmodel.csv" is valid.
-✔ 2024-11-12-F-trends.csv: File directory name matches `model_id` metadata in file name.
-✔ 2024-11-12-F-trends.csv: `round_id` is valid.
-✔ 2024-11-12-F-trends.csv: File is accepted hub format.
+✔ 2026-10-24-F-trends.csv: File exists at path model-output/F-trends/2026-10-24-F-trends.csv.
+✔ 2026-10-24-F-trends.csv: File name "2026-10-24-F-trends.csv" is valid.
+✔ 2026-10-24-F-trends.csv: File directory name matches `model_id` metadata in file name.
+✔ 2026-10-24-F-trends.csv: `round_id` is valid.
+✔ 2026-10-24-F-trends.csv: File is accepted hub format.
 ...
 ```
 
@@ -195,7 +195,7 @@ library(hubValidations)
 
 validations <- validate_submission(
     hub_path = ".",
-    file_path = "F-trends/2024-11-12-F-trends.csv")
+    file_path = "F-trends/2026-10-24-F-trends.csv")
 
 check_for_errors(validations)
 ```
@@ -204,20 +204,14 @@ If the file passes all validation checks, the function will return the following
 ```r
 ✔ All validation checks have been successful.
 ```
-If test failures or execution errors are detected, the function throws an error and prints the messages of checks affected. For example, the following output is returned when all other checks have passed but the file is being validated outside the submission time window for the round:
-
-```r
-! 2024-11-12-F-trends.csv: Submission time must be within accepted submission window for round.  Current time
-  2024-11-12 10:00:08 is outside window 2024-11-01 EDT--2024-11-07 23:59:59 EDT.
-Error in `check_for_errors()`:
-! 
-The validation checks produced some failures/errors reported above.
-```
+If test failures or execution errors are detected, the function throws an error and prints the affected checks. Local Hubverse validation checks the time at which you run it; the pull-request workflow separately checks the PR event timestamp against the 2026–27 11:30 p.m. deadline.
 
 
 ## Policy on late or updated submissions 
 
-In order to ensure that forecasting is done in real-time, all forecasts are required to be submitted to this repository by 11PM America/Toronto on Saturdays each week. We do not accept late forecasts.
+For the 2026–27 season, forecasts are due by 11:30 p.m. America/Toronto time on each reference Saturday, from October 24, 2026 through May 29, 2027. The pull request must be opened or updated with the forecast by the deadline; a later update is late. The submission check uses the pull request event timestamp, so a validation run that finishes after 11:30 p.m. does not itself make an on-time submission late. We do not accept late forecasts.
+
+The hub's own retrospective model backfills run separately on Mondays and are not on-time team submissions.
 
 ## Evaluation criteria
 Forecasts will be evaluated using `Weighted Interval Score (WIS)`, `Absolute Error (AE)` and `Mean Squared Error (MSE)`. The CMU [Delphi group's Forecast Evaluation Dashboard](https://delphi.cmu.edu/forecast-eval/) and the COVID-19 Forecast Hub periodic [Forecast Evaluation Reports](https://covid19forecasthub.org/eval-reports/) provide examples of evaluations using these criteria.
