@@ -23,15 +23,20 @@ runs:
           cmu-delphi/epipredict@main
           any::dplyr
           any::tidyr
+          any::lubridate
+          any::readr
           any::parsnip
           any::ranger
           any::hubValidations
+          any::hubUtils
+          any::hubEnsembles
 
     - name: Verify forecast packages
       shell: Rscript {0}
       run: |
         packages <- c("epiprocess", "epipredict", "dplyr", "tidyr",
-                      "parsnip", "ranger", "hubValidations")
+                      "lubridate", "readr", "parsnip", "ranger",
+                      "hubValidations", "hubUtils", "hubEnsembles")
         missing <- packages[!vapply(packages, requireNamespace, logical(1),
                                     quietly = TRUE)]
         if (length(missing)) stop("Missing R packages: ", paste(missing, collapse = ", "))

@@ -1,8 +1,8 @@
-name: Hub Model Forecast Workflow
+name: Weekly RVDSS Hub Pipeline
 
 on:
   schedule:
-    - cron: '30 10 * * MON'
+    - cron: '0 10 * * MON'
       timezone: 'America/Toronto'
   workflow_dispatch:
     inputs:
@@ -17,8 +17,11 @@ on:
         default: false
 
 concurrency:
-  group: hub-model-forecasts
+  group: weekly-rvdss-hub-pipeline
   cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   run-r-script:
@@ -35,23 +38,37 @@ jobs:
       - name: Restore and install forecast R dependencies
         uses: ./.github/actions/setup-forecast-r
 
+      - name: Concatenate truth and submitted models
+        run: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R
+
       - name: Generate previous Saturday's hub forecasts
         env:
           FORECAST_REFERENCE_DATE: ${{ inputs.reference_date }}
           FORECAST_OVERWRITE: ${{ inputs.overwrite }}
         run: Rscript scripts/hub_model_forecasts.R
 
+      - name: Rebuild model data with hub forecasts
+        run: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
+
+      - name: Generate previous Saturday's ensemble
+        env:
+          FORECAST_REFERENCE_DATE: ${{ inputs.reference_date }}
+          FORECAST_OVERWRITE: ${{ inputs.overwrite }}
+        run: Rscript scripts/all_hub_ensemble.R
+
+      - name: Include ensemble in saved model data
+        run: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
+
       - name: Add new files
-        run: git add model-output/
+        run: git add auxiliary-data/concatenated_rvdss_data.csv auxiliary-data/concatenated_model_output.csv model-output/
 
       - name: Commit results
         run: |
           git config --local user.name "${{ github.actor }}"
           git config --local user.email "${{ github.actor }}@users.noreply.github.com"
-          git diff --cached --quiet || git commit -m 'Update hub forecasts'
-
-      - name: Push changes with personal token
-        env:
-          GITHUB_PAT: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-        run: |
-          git push https://${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/ai4castinghub/rvdss-forecast.git HEAD:main
+          if git diff --cached --quiet; then
+            echo "No weekly output changes to commit"
+          else
+            git commit -m 'Update weekly hub outputs'
+            git push https://${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/ai4castinghub/rvdss-forecast.git HEAD:main
+          fi

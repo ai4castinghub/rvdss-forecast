@@ -2,6 +2,11 @@ library(lubridate)
 library(dplyr)
 library(readr)
 
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) > 1L || (length(args) == 1L && args[[1L]] != "--models-only")) {
+  stop("Usage: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R [--models-only]")
+}
+
 # required columns that must exist in all rvdss files
 required_columns <- c("sarscov2_pct_positive", "rsv_pct_positive", "flu_pct_positive")
 
@@ -36,18 +41,16 @@ load_season_data <- function(year) {
   data
 }
 
-# load all seasons and combine
-all_data <- lapply(2019:2026, load_season_data)
-final_data <- bind_rows(all_data) %>%
-  mutate(geo_value = if_else(geo_value == "yk", "yt", geo_value))
-
-# write concatenated rvdss data
-write_csv(final_data, "auxiliary-data/concatenated_rvdss_data.csv")
+if (length(args) == 0L) {
+  # Refresh truth once before the Monday forecast and ensemble stages.
+  all_data <- lapply(2019:2026, load_season_data)
+  final_data <- bind_rows(all_data) %>%
+    mutate(geo_value = if_else(geo_value == "yk", "yt", geo_value))
+  write_csv(final_data, "auxiliary-data/concatenated_rvdss_data.csv")
+}
 
 # model output directory and reference date used for filtering
 model_output_dir <- "model-output"
-current_reference_date <- ref_date <- ceiling_date(Sys.Date(), "week") - days(1) - weeks(1) #floor_date(Sys.Date(), unit = "week") + days(6)
-current_reference_date
 
 # helper to process individual model files
 process_model_file <- function(file, model_name) {

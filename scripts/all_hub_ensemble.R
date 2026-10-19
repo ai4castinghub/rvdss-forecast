@@ -1,5 +1,5 @@
 # Generate the hub ensemble separately from the four epipredict models.
-# Run from the repository root after component forecasts are present.
+# Run from the repository root after refreshing the concatenated model output.
 # Rscript scripts/all_hub_ensemble.R --reference-date 2026-10-24
 source("scripts/hub_model_forecasts.R", local = TRUE)
 
@@ -12,20 +12,20 @@ excluded_models <- c(
 )
 
 load_components <- function(reference_date) {
-  model_dirs <- list.dirs("model-output", full.names = TRUE, recursive = FALSE)
-  model_dirs <- model_dirs[!basename(model_dirs) %in% excluded_models]
-  paths <- file.path(
-    model_dirs,
-    paste0(reference_date, "-", basename(model_dirs), ".csv")
-  )
-  paths <- paths[file.exists(paths)]
-  if (length(paths) == 0L) stop("No component forecasts for ", reference_date)
-  message("Ensembling ", length(paths), " models for ", reference_date)
-  data <- dplyr::bind_rows(lapply(paths, function(path) {
-    component <- read.csv(path, stringsAsFactors = FALSE)
-    component$model_id <- basename(dirname(path))
-    component
-  }))
+  path <- "auxiliary-data/concatenated_model_output.csv"
+  if (!file.exists(path)) stop("Missing concatenated model output: ", path)
+  data <- read.csv(path, stringsAsFactors = FALSE)
+  columns <- c("reference_date", "target", "horizon", "target_end_date",
+               "location", "output_type", "output_type_id", "value", "model")
+  missing <- setdiff(columns, names(data))
+  if (length(missing)) stop("Concatenated model output is missing: ",
+                            paste(missing, collapse = ", "))
+  data <- data[data$reference_date == as.character(reference_date) &
+                 !data$model %in% excluded_models, columns, drop = FALSE]
+  if (nrow(data) == 0L) stop("No component forecasts for ", reference_date)
+  message("Ensembling ", length(unique(data$model)), " models for ", reference_date)
+  data$model_id <- data$model
+  data$model <- NULL
   data$reference_date <- as.Date(data$reference_date)
   data$target_end_date <- as.Date(data$target_end_date)
   data$output_type_id <- as.numeric(data$output_type_id)
@@ -74,7 +74,21 @@ if (sys.nframe() == 0L) {
   if (length(missing_packages) > 0L) {
     stop("Install required R packages: ", paste(missing_packages, collapse = ", "))
   }
-  options <- parse_options(commandArgs(trailingOnly = TRUE))
+  args <- commandArgs(trailingOnly = TRUE)
+  env_reference_date <- Sys.getenv("FORECAST_REFERENCE_DATE", "")
+  if (nzchar(env_reference_date)) {
+    args <- c(args, "--reference-date", env_reference_date)
+  }
+  if (tolower(Sys.getenv("FORECAST_OVERWRITE", "false")) == "true") {
+    args <- c(args, "--overwrite")
+  }
+  options <- parse_options(args)
+  if (!options$explicit_dates &&
+      (options$from < as.Date("2026-10-24") ||
+       options$from > as.Date("2027-05-29"))) {
+    message("No 2026-27 ensemble round to backfill this Monday")
+    quit(status = 0L)
+  }
   for (date_string in as.character(seq(options$from, options$to, by = "7 days"))) {
     run_ensemble(as.Date(date_string), options$overwrite)
   }
