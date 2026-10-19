@@ -1,5 +1,5 @@
 epiweeks==2.1.2
-pandas==1.2.3
+pandas==2.0.3
 regex
 requests==2.32.0
 beautifulsoup4

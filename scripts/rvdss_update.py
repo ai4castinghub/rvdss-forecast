@@ -10,6 +10,14 @@ import math
 import warnings
 from dateutil import parser
 
+REQUEST_TIMEOUT = (10, 30)  # Connect and read timeouts, in seconds.
+
+
+def fetch_url(url, headers=None):
+    response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+    response.raise_for_status()
+    return response
+
 VIRUSES = {
     "parainfluenza": "hpiv",
     "piv": "hpiv",
@@ -225,7 +233,7 @@ def get_revised_data(base_url):
 
     # Get update date
     update_date_url =  base_url + DASHBOARD_UPDATE_DATE_FILE
-    update_date_url_response = requests.get(update_date_url, headers=headers)
+    update_date_url_response = fetch_url(update_date_url, headers=headers)
     update_date = datetime.strptime(update_date_url_response.text, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
 
     #update_date = datetime.strptime(update_date_url_response.text,"%m/%d/%Y %H:%M:%S").strftime("%Y-%m-%d") #"%m/%d/%Y %H:%M:%S"
@@ -233,7 +241,7 @@ def get_revised_data(base_url):
     # Get update data
     url = base_url+DASHBOARD_DATA_FILE
 
-    url_response = requests.get(url, headers=headers)
+    url_response = fetch_url(url, headers=headers)
     df = pd.read_csv(io.StringIO(url_response.text))
 
     df['virus'] = [abbreviate_virus(v) for v in df['virus']]
@@ -269,12 +277,12 @@ def get_weekly_data(base_url,start_year):
 
     # Get update date
     update_date_url =  base_url + "RVD_UpdateDate.csv"
-    update_date_url_response = requests.get(update_date_url, headers=headers)
+    update_date_url_response = fetch_url(update_date_url, headers=headers)
     update_date = datetime.strptime(update_date_url_response.text,"%m/%d/%Y %H:%M:%S").strftime("%Y-%m-%d")
 
     # Get current week and year
     summary_url =  base_url + "RVD_SummaryText.csv"
-    summary_url_response = requests.get(summary_url, headers=headers)
+    summary_url_response = fetch_url(summary_url, headers=headers)
     summary_df = pd.read_csv(io.StringIO(summary_url_response.text))
 
     week_df = summary_df[(summary_df['Section'] == "summary") & (summary_df['Type']=="title")]
@@ -290,7 +298,7 @@ def get_weekly_data(base_url,start_year):
 
     # Get weekly data
     weekly_url = base_url + "RVD_CurrentWeekTable.csv"
-    weekly_url_response = requests.get(weekly_url, headers=headers)
+    weekly_url_response = fetch_url(weekly_url, headers=headers)
     weekly_url_response.encoding='UTF-8'
     df_weekly = pd.read_csv(io.StringIO(weekly_url_response.text))
 
@@ -818,7 +826,7 @@ def process_tables(all_respiratory_detection_table, all_positive_tables, COL_MAP
 def get_season_reports(url):
     # From the url, go to the main landing page for a season
     # which contains all the links to each week in the season
-    page=requests.get(url)
+    page=fetch_url(url)
     soup=BeautifulSoup(page.text,'html.parser')
 
     # get season, week numbers, urls and week ends
@@ -845,7 +853,7 @@ def get_season_reports(url):
 
         # Get page for the current week
         temp_url=urls[week_num]
-        temp_page=requests.get(temp_url)
+        temp_page=fetch_url(temp_url)
         new_soup = BeautifulSoup(temp_page.text, 'html.parser')
         captions = extract_captions_of_interest(new_soup)
         modified_date = get_modified_dates(new_soup,current_week_end)
@@ -1058,6 +1066,7 @@ def main():
                 print(f"Retrying... (Attempt {retries}/{max_retries})")
             else:
                 print(f"Max retries reached.")
+                raise
 
 
 	# Check if the directory exists, and if not, create it
@@ -1073,7 +1082,7 @@ def main():
 
         # Get update date
         update_date_url =  base_url + "RVD_UpdateDate.csv"
-        update_date_url_response = requests.get(update_date_url, headers=headers)
+        update_date_url_response = fetch_url(update_date_url, headers=headers)
         #print(update_date_url_response.text)
         update_date = datetime.strptime(update_date_url_response.text, "%Y-%m-%d %H:%M:%S")
 
@@ -1081,7 +1090,7 @@ def main():
 
         # Get current week and year
         summary_url =  base_url + "RVD_SummaryText.csv"
-        summary_url_response = requests.get(summary_url, headers=headers)
+        summary_url_response = fetch_url(summary_url, headers=headers)
         summary_df = pd.read_csv(io.StringIO(summary_url_response.text))
 
         week_df = summary_df[(summary_df['Section'] == "summary") & (summary_df['Type']=="title")]
@@ -1097,7 +1106,7 @@ def main():
 
         # Get weekly data
         weekly_url = base_url + "RVD_CurrentWeekTable.csv"
-        weekly_url_response = requests.get(weekly_url, headers=headers)
+        weekly_url_response = fetch_url(weekly_url, headers=headers)
         weekly_url_response.encoding='UTF-8'
         df_weekly = pd.read_csv(io.StringIO(weekly_url_response.text))
 
@@ -1172,8 +1181,7 @@ def main():
     
     concatenated_table = concatenated_table.reset_index()
     #print(concatenated_table['issue'])
-    #concatenated_table['issue'] = pd.to_datetime(concatenated_table['issue'])
-    concatenated_table['issue'] = pd.to_datetime(concatenated_table['issue'], format='mixed', errors='coerce')
+    concatenated_table['issue'] = pd.to_datetime(concatenated_table['issue'], format='mixed', errors='raise')
 
 
     # Update the geo_type based on LOC_CORRECTION values
