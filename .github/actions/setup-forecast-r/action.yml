@@ -20,7 +20,6 @@ runs:
         install-pandoc: 'false'
         install-quarto: 'false'
         packages: |
-          cmu-delphi/epiprocess@main
           cmu-delphi/epipredict@main
           any::dplyr
           any::tidyr
