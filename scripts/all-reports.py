@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 
 model_data_all = pd.read_csv('auxiliary-data/concatenated_model_output.csv')
 
-truth_data = pd.read_csv('target-data/season_2025_2026/target_rvdss_data.csv')
+truth_data = pd.read_csv('target-data/season_2026_2027/target_rvdss_data.csv')
 truth_data = truth_data.rename(columns={"time_value": "time"})
 truth_data['time'] = pd.to_datetime(truth_data['time']).dt.date
 
@@ -26,7 +26,7 @@ model_data_all['reference_date'] = pd.to_datetime(model_data_all['reference_date
 model_data_all['target_end_date'] = pd.to_datetime(model_data_all['target_end_date']).dt.date
 model_data_all['output_type_id'] = pd.to_numeric(model_data_all['output_type_id'], errors='coerce')
 
-logo_path = "scripts\logo.png"  # <-- change this to your file path
+logo_path = "scripts/logo.png"
 logo_img = mpimg.imread(logo_path)
 
 # ---------------------------
@@ -44,8 +44,8 @@ def add_logo(fig):
 # ---------------------------
 
 ref_dates = pd.date_range(
-    start="2026-03-07",
-    end="2026-04-04",
+    start="2026-10-24",
+    end="2027-05-29",
     freq="7D"
 ).date
 

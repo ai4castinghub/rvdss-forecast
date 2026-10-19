@@ -4,3 +4,4 @@ regex
 requests==2.32.0
 beautifulsoup4
 lxml
+python-dateutil==2.9.0.post0

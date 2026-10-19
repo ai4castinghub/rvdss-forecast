@@ -7,20 +7,20 @@ required_columns <- c("sarscov2_pct_positive", "rsv_pct_positive", "flu_pct_posi
 
 # helper to load a single season and ensure required columns
 load_season_data <- function(year) {
-  season_folder <- paste0("auxiliary-data/target-data-archive/season_", year, "_", year + 1)
+  season_folder <- if (year <= 2024) {
+    paste0("auxiliary-data/target-data-archive/season_", year, "_", year + 1)
+  } else {
+    paste0("target-data/season_", year, "_", year + 1)
+  }
   file_path     <- file.path(season_folder, "target_rvdss_data.csv")
   
-  # choose file path (fallback if missing)
-  if (file.exists(file_path)) {
-    path_to_use <- file_path
-  } else {
+  if (!file.exists(file_path)) {
     warning("file not found: ", file_path)
-    path_to_use <- "target-data/season_2025_2026/target_rvdss_data.csv"
-    message("file found at: ", path_to_use)
+    return(NULL)
   }
   
   # read data
-  data <- read_csv(path_to_use, show_col_types = FALSE)
+  data <- read_csv(file_path, show_col_types = FALSE)
   
   # add any missing required columns as na
   missing_columns <- setdiff(required_columns, colnames(data))
@@ -37,7 +37,7 @@ load_season_data <- function(year) {
 }
 
 # load all seasons and combine
-all_data <- lapply(2019:2025, load_season_data)
+all_data <- lapply(2019:2026, load_season_data)
 final_data <- bind_rows(all_data) %>%
   mutate(geo_value = if_else(geo_value == "yk", "yt", geo_value))
 
@@ -55,10 +55,12 @@ process_model_file <- function(file, model_name) {
     mutate(
       model = model_name,
       reference_date = coalesce(
+        as_date(ymd(reference_date)),
         as_date(dmy(reference_date)),
         as_date(as.numeric(reference_date), origin = "1970-01-01")
       ),
       target_end_date = coalesce(
+        as_date(ymd(target_end_date)),
         as_date(dmy(target_end_date)),
         as_date(as.numeric(target_end_date), origin = "1970-01-01")
       )
@@ -84,7 +86,7 @@ model_dirs <- list.dirs(model_output_dir, full.names = TRUE, recursive = FALSE)
 all_model_data <- bind_rows(lapply(model_dirs, process_model_dir))
 
 # clean values and filter by cutoff date
-cutoff_date <- as_date("2025-08-30")
+cutoff_date <- as_date("2026-10-24")
 
 all_model_data <- all_model_data %>%
   mutate(value = if_else(value < 0, 0, round(value, 2))) %>%

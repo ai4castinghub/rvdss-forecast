@@ -3,17 +3,22 @@ name: Update RVDSS Data
 on:
   workflow_dispatch:
   schedule:
-    # friday 11:00 america/toronto (16:00 utc during standard time)
+    # Friday 09:00 EST / 10:00 EDT, then 11:00 EST / 12:00 EDT.
+    - cron: '0 14 * * FRI'
     - cron: '0 16 * * FRI'
-    # friday 15:00 america/toronto (20:00 utc during standard time)
+    # Retry later if the dashboard publication is delayed.
     - cron: '0 20 * * FRI'
 
+permissions:
+  contents: write
+
+concurrency:
+  group: update-rvdss-data
+  cancel-in-progress: false
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # R not supported for ubuntu-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -24,19 +29,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.8'
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
       
       - name: Install Dependencies
-        run: pip install -r scripts/requirements.txt
+        run: python -m pip install -r scripts/requirements.txt
       
       - name: Download latest data
         run: python scripts/rvdss_update.py
 
       - name: Add new files
-        run: git add target-data/  # This ensures the new 'data/' directory and its contents are added to the git index
+        run: git add target-data/ auxiliary-data/season_2026_2027_raw_files/
       
       - name: Commit results
         run: |
           git config --local user.name "$GITHUB_ACTOR"
           git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git commit -am 'update rvdss data' || echo "No changes to commit"
-          git push origin || echo "No changes to commit"
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+          else
+            git commit -m 'Update RVDSS data'
+            git push origin HEAD:main
+          fi

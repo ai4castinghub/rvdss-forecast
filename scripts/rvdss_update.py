@@ -181,6 +181,8 @@ RESP_COUNTS_OUTPUT_FILE = "respiratory_detections.csv"
 POSITIVE_TESTS_OUTPUT_FILE = "positive_tests.csv"
 
 LAST_WEEK_OF_YEAR = 35
+SEASON_START_YEAR = 2026
+SEASON_NAME = f"season_{SEASON_START_YEAR}_{SEASON_START_YEAR + 1}"
 
 
 def abbreviate_virus(full_name):
@@ -1070,7 +1072,7 @@ def main():
 
 
 	# Check if the directory exists, and if not, create it
-    directory = './target-data/season_2025_2026/'
+    directory = f'./target-data/{SEASON_NAME}/'
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -1130,8 +1132,10 @@ def main():
         df_weekly = df_weekly.drop(columns=['time_value','epiweek'])
         df_weekly = df_weekly.rename(columns={'date':'time_value','week':'epiweek'})
         #print(df_weekly.columns)
-        df_weekly['epiweek'] = df_weekly['epiweek'].astype(str)
-        df_weekly['epiweek'] = '2025' + df_weekly['epiweek']
+        df_weekly['epiweek'] = df_weekly['epiweek'].apply(
+            lambda week: int(str(Week(start_year if int(week) >= LAST_WEEK_OF_YEAR
+                                      else start_year + 1, int(week))))
+        )
 
         if df_weekly.columns.isin(["weekorder","date","week"]).all():
             df_weekly=df_weekly.drop(["weekorder","date","week"],axis=1)
@@ -1139,7 +1143,7 @@ def main():
         return(df_weekly)
 
 
-    weekly_data = get_weekly_data2(DASHBOARD_BASE_URL,2025).set_index(['epiweek', 'time_value', 'issue', 'geo_type', 'geo_value'])
+    weekly_data = get_weekly_data2(DASHBOARD_BASE_URL, SEASON_START_YEAR).set_index(['epiweek', 'time_value', 'issue', 'geo_type', 'geo_value'])
     positive_data = get_revised_data(DASHBOARD_BASE_URL)
     # print('weekly_data cols:', weekly_data.columns)
     # print('positive_data cols:', positive_data.columns)
@@ -1148,12 +1152,13 @@ def main():
     weekly_data, positive_data = process_tables(weekly_data, positive_data, COL_MAPPERS, viruses)
 
 
-    path1 = './auxiliary-data/season_2025_2026_raw_files/respiratory_detections.csv'
-    path2 = './auxiliary-data/season_2025_2026_raw_files/positive_tests.csv'
+    raw_directory = f'./auxiliary-data/{SEASON_NAME}_raw_files/'
+    path1 = raw_directory + 'respiratory_detections.csv'
+    path2 = raw_directory + 'positive_tests.csv'
 
 
-    if os.path.exists('./auxiliary-data/season_2025_2026_raw_files/')==False:
-        os.makedirs('./auxiliary-data/season_2025_2026_raw_files/')
+    if not os.path.exists(raw_directory):
+        os.makedirs(raw_directory)
 
     if os.path.exists(path1)==False:
         weekly_data.to_csv(path1,index=True)
@@ -1194,8 +1199,6 @@ def main():
     concatenated_table = concatenated_table.drop(columns=['issue'], errors='ignore') 
     concatenated_table = concatenated_table.drop(columns=['epiweek','week','date','weekorder'], errors='ignore')
     
-    #concatenated_table.to_csv('./auxiliary-data/season_2024_2025_raw_files/raw.csv', index=False)
-    
     for col in concatenated_table.columns:   
         if col not in COLUMNS_TARGET:
             concatenated_table = concatenated_table.drop(columns=[col])
@@ -1207,7 +1210,7 @@ def main():
     #print(concatenated_table)
     concatenated_table = concatenated_table.sort_values('time_value', ascending=False)
 
-    concatenated_table.to_csv('./target-data/season_2025_2026/target_rvdss_data.csv', index=False)
+    concatenated_table.to_csv(directory + 'target_rvdss_data.csv', index=False)
    
 if __name__ == '__main__':
     main()

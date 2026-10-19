@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 model_data = pd.read_csv('auxiliary-data/concatenated_model_output.csv')
 
 # Load the truth data
-truth_data = pd.read_csv('target-data/season_2025_2026/target_rvdss_data.csv')
+truth_data = pd.read_csv('target-data/season_2026_2027/target_rvdss_data.csv')
 truth_data = truth_data.rename(columns={"time_value": "time"})
 truth_data['time'] = pd.to_datetime(truth_data['time']).dt.date
 
