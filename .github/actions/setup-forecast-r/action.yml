@@ -1,0 +1,40 @@
+name: Set up forecast R dependencies
+description: Install and cache the R packages used by the four hub forecasters
+runs:
+  using: composite
+  steps:
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: 'release'
+        use-public-rspm: true
+        extra-repositories: 'https://hubverse-org.r-universe.dev'
+
+    - name: Restore and install forecast packages
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        cache: always
+        cache-version: '1'
+        pak-version: stable
+        dependencies: '"hard"'
+        install-pandoc: 'false'
+        install-quarto: 'false'
+        packages: |
+          cmu-delphi/epiprocess@main
+          cmu-delphi/epipredict@main
+          any::dplyr
+          any::tidyr
+          any::parsnip
+          any::ranger
+          any::hubValidations
+
+    - name: Verify forecast packages
+      shell: Rscript {0}
+      run: |
+        packages <- c("epiprocess", "epipredict", "dplyr", "tidyr",
+                      "parsnip", "ranger", "hubValidations")
+        missing <- packages[!vapply(packages, requireNamespace, logical(1),
+                                    quietly = TRUE)]
+        if (length(missing)) stop("Missing R packages: ", paste(missing, collapse = ", "))
+        print(vapply(packages, function(package) as.character(packageVersion(package)),
+                     character(1)))
