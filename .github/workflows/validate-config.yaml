@@ -1,0 +1,51 @@
+name: Hub Config Validation (R)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'hub-config/**'
+      - '.github/workflows/validate-config.yaml'
+      - '!hub-config/**/README.md'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-hub-config:
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      HUB_PATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          extra-repositories: 'https://hubverse-org.r-universe.dev'
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::hubAdmin
+            any::sessioninfo
+
+      - name: Validate hub configuration
+        id: validate
+        run: hubAdmin::ci_validate_hub_config(diff = file.path(Sys.getenv("RUNNER_TEMP"), "hub-config-validation.md"))
+        shell: Rscript {0}
+
+      - name: Publish validation report
+        if: always() && steps.validate.outcome != 'skipped'
+        run: |
+          if [ -f "$RUNNER_TEMP/hub-config-validation.md" ]; then
+            cat "$RUNNER_TEMP/hub-config-validation.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail on invalid configuration
+        if: steps.validate.outputs.result == 'false'
+        run: |
+          echo '::error title=Invalid configuration::See the validation report in the job summary.'
+          exit 1

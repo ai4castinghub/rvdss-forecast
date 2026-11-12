@@ -9,9 +9,13 @@ on:
       - 'model-metadata/*'
       - '!**README**'
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   validate_and_check:
-    runs-on: ubuntu-22.04  # R not supported for ubuntu-latest
+    runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
@@ -26,31 +30,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Set up R
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
+      - name: Run hubverse submission validations
+        if: github.event_name == 'pull_request'
+        uses: hubverse-org/hubverse-actions/validate-submission@v2
         with:
-          use-public-rspm: true
-
-      # Install only the R deps needed for validation
-      - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          pak-version: "devel"
-          packages: |
-            hubverse-org/hubValidations
-            any::sessioninfo
+          summary: true
+          # The separate deadline check uses the PR event time.
+          skip_submit_window_check: true
 
       # ---------- Git diff + path checks  ----------
 
       - name: Fetch base branch
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         run: |
           # github.base_ref is the base branch of the PR (e.g. "main")
           git fetch origin ${{ github.base_ref }}
 
       - name: Run git diff to find changed files
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         run: |
           # Compare PR HEAD to the base branch using merge-base (three dots)
           git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
@@ -58,7 +55,7 @@ jobs:
           cat changed_files.txt
 
       - name: Check if changes are outside allowed directories
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         run: |
           # Filter out files not in the allowed directories
           UNALLOWED_CHANGES=$(grep -vE '^model-metadata/|^model-output/' changed_files.txt || true)
@@ -72,23 +69,5 @@ jobs:
           fi
 
       - name: Check 2026-27 submission deadline
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         run: python scripts/check_submission_deadline.py
-
-      # ----------  validations  ----------
-
-      - name: Run validations
-        if: github.event_name == 'pull_request'
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-        run: |
-          library("hubValidations")
-          v <- hubValidations::validate_pr(
-              gh_repo = Sys.getenv("GITHUB_REPOSITORY"),
-              pr_number = Sys.getenv("PR_NUMBER"),
-              # The preceding check uses the PR event time, so delayed CI runs
-              # do not reject forecasts submitted before 23:30 Toronto time.
-              skip_submit_window_check = TRUE
-          )
-          hubValidations::check_for_errors(v, verbose = TRUE)
-        shell: Rscript {0}
