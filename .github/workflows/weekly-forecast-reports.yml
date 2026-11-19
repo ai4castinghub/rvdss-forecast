@@ -25,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: pip install -r scripts/req-2.txt
       
-      - name: Download latest data
+      - name: Generate weekly report with AI4Casting_Hub-Simple_Ens
         run: python scripts/rvdss-report.py
 
       - name: Add new files
