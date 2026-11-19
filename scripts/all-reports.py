@@ -9,6 +9,9 @@ import os
 
 warnings.filterwarnings("ignore")
 
+ENSEMBLE_ID = 'AI4Casting_Hub-Simple_Ens'
+RETIRED_ENSEMBLE_ID = 'AI4Casting_Hub-Ensemble_v1'
+
 # ---------------------------
 # LOAD DATA (ONCE)
 # ---------------------------
@@ -44,7 +47,8 @@ def add_logo(fig):
 # ---------------------------
 
 ref_dates = pd.date_range(
-    start="2026-10-24",
+    # Preserve PDFs from before the Simple_Ens transition.
+    start="2026-11-14",
     end="2027-05-29",
     freq="7D"
 ).date
@@ -62,6 +66,9 @@ for ref_date in ref_dates:
     
     if model_data.empty:
         print(f"No data for {ref_date}, skipping...")
+        continue
+    if not (model_data['model'] == ENSEMBLE_ID).any():
+        print(f"No {ENSEMBLE_ID} forecasts for {ref_date}, skipping...")
         continue
 
     # Output file
@@ -134,7 +141,7 @@ for ref_date in ref_dates:
                     ref_yaxis['value'].max() * 2
                 ])
 
-                non_ensemble = region_data[region_data['model'] != 'AI4Casting_Hub-Ensemble_v1']
+                non_ensemble = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID])]
 
                 for model in non_ensemble['model'].unique():
                     model_df = non_ensemble[non_ensemble['model'] == model]
@@ -181,13 +188,13 @@ for ref_date in ref_dates:
                 # ---------------------------
                 ax = axes[1]
 
-                ensemble_data = region_data[region_data['model'] == 'AI4Casting_Hub-Ensemble_v1']
+                ensemble_data = region_data[region_data['model'] == ENSEMBLE_ID]
 
                 if not ensemble_data.empty:
                     grouped = calculate_intervals(ensemble_data)
 
                     if not grouped.empty:
-                        line, = ax.plot(grouped['target_end_date'], grouped['median'], label="Ensemble")
+                        line, = ax.plot(grouped['target_end_date'], grouped['median'], label=ENSEMBLE_ID)
                         ax.fill_between(grouped['target_end_date'],
                                         grouped['lower_95'],
                                         grouped['upper_95'],
@@ -207,7 +214,7 @@ for ref_date in ref_dates:
                             linewidth=2,
                             label="Truth")
 
-                ax.set_title(f"Ensemble - {full_region_name} - {target}")
+                ax.set_title(f"Simple Ensemble - {full_region_name} - {target}")
                 ax.set_xlabel("Target End Date")
                 ax.legend(fontsize="small")
                 ax.grid()

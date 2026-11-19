@@ -1,11 +1,14 @@
-# Generate the hub ensemble separately from the four epipredict models.
+# Generate Simple_Ens separately from the four epipredict models.
 # Run from the repository root after refreshing the concatenated model output.
-# Rscript scripts/all_hub_ensemble.R --reference-date 2026-10-24
+# Rscript scripts/all_hub_ensemble.R --reference-date 2026-11-14
 source("scripts/hub_model_forecasts.R", local = TRUE)
 
-ensemble_id <- "AI4Casting_Hub-Ensemble_v1"
+ensemble_id <- "AI4Casting_Hub-Simple_Ens"
 excluded_models <- c(
   ensemble_id,
+  "AI4Casting_Hub-Ensemble_v1",
+  "AI4Casting_Hub-Quantile_Baseline",
+  "AI4Casting_Hub-Flatline",
   "AI4Casting_GPT_4o",
   "AI4Casting_Hub-GPT_4o",
   "AI4Casting_Hub-Weighted_Ensemble"

@@ -3,9 +3,28 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.dates as mdates
 from datetime import datetime, timedelta
+import argparse
+import os
 import warnings
 warnings.filterwarnings("ignore")
 
+ENSEMBLE_ID = 'AI4Casting_Hub-Simple_Ens'
+RETIRED_ENSEMBLE_ID = 'AI4Casting_Hub-Ensemble_v1'
+SIMPLE_ENS_START = datetime.strptime('2026-11-14', '%Y-%m-%d').date()
+
+parser = argparse.ArgumentParser(description='Generate a weekly Simple_Ens forecast report.')
+parser.add_argument('--reference-date', type=lambda value: datetime.strptime(value, '%Y-%m-%d').date(),
+                    help='Saturday reference date (YYYY-MM-DD); defaults to the previous Saturday')
+args = parser.parse_args()
+current_date = datetime.now().date()
+ref_date = args.reference_date or (
+    current_date + timedelta(days=(6 - current_date.weekday())) - timedelta(weeks=1, days=1)
+)
+if ref_date.weekday() != 5:
+    parser.error('Reference dates must be Saturdays')
+if ref_date < SIMPLE_ENS_START:
+    print(f'Preserving historical reports before {SIMPLE_ENS_START}; skipping {ref_date}')
+    raise SystemExit(0)
 
 # Load the model data
 model_data = pd.read_csv('auxiliary-data/concatenated_model_output.csv')
@@ -22,19 +41,21 @@ model_data['output_type_id'] = pd.to_numeric(model_data['output_type_id'], error
 
 print(model_data)
 print(truth_data)
-# Calculate reference date
-current_date = datetime.now().date()
-ref_date = current_date + timedelta(days=(6 - current_date.weekday())) - timedelta(weeks=1, days=1)#, weeks=1)
 print(ref_date)
 
 # Filter model data for the reference date
 model_data = model_data[model_data['reference_date'] == ref_date]
+if model_data.empty:
+    raise SystemExit(f'No forecast data for {ref_date}')
+if not (model_data['model'] == ENSEMBLE_ID).any():
+    raise SystemExit(f'Missing {ENSEMBLE_ID} forecasts for {ref_date}; generate the ensemble first')
 
 locations = pd.read_csv('auxiliary-data/locations.csv')
 
 # Group by region (location)
 targets = model_data['target'].unique()
 file_name = 'weekly-forecast-reports/' + str(ref_date)+"-Forecast_Report.pdf"
+os.makedirs('weekly-forecast-reports', exist_ok=True)
 # Open a PDF to save the plots
 with PdfPages(file_name) as pdf:
     # Iterate over each target
@@ -92,7 +113,7 @@ with PdfPages(file_name) as pdf:
             # Left Plot: All Models (excluding ensemble)
             ax = axes[0]
             ax.set_ylim([ref_yaxis['value'].min()/2, ref_yaxis['value'].max() * 2])
-            non_ensemble_data = region_data[region_data['model'] != 'AI4Casting_Hub-Ensemble_v1']
+            non_ensemble_data = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID])]
             for model in non_ensemble_data['model'].unique():
                 model_specific_data = non_ensemble_data[non_ensemble_data['model'] == model]
                 
@@ -158,12 +179,12 @@ with PdfPages(file_name) as pdf:
 
             # Right Plot: Truth Data + Ensemble Model
             ax = axes[1]
-            ensemble_data = region_data[region_data['model'] == 'AI4Casting_Hub-Ensemble_v1']
+            ensemble_data = region_data[region_data['model'] == ENSEMBLE_ID]
             if not ensemble_data.empty:
                 grouped = calculate_intervals(ensemble_data)
                 
                 if not grouped.empty:
-                    line, = ax.plot(grouped['target_end_date'], grouped['median'], label="Ensemble")
+                    line, = ax.plot(grouped['target_end_date'], grouped['median'], label=ENSEMBLE_ID)
                     ax.fill_between(
                         grouped['target_end_date'],
                         grouped['lower_95'],
@@ -200,7 +221,7 @@ with PdfPages(file_name) as pdf:
             else:
                 print(f"No truth data for region: {region}")
 
-            ax.set_title(f"Ensemble Model - {full_region_name} - {target}")
+            ax.set_title(f"Simple Ensemble - {full_region_name} - {target}")
             ax.set_xlabel("Target End Date")
             ax.legend(loc="upper left", fontsize="small")
             ax.grid()
