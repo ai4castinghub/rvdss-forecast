@@ -209,7 +209,7 @@ If test failures or execution errors are detected, the function throws an error 
 
 ## Policy on late or updated submissions 
 
-For the 2026–27 season, forecasts are due by 11:30 p.m. America/Toronto time on each reference Saturday, from October 24, 2026 through May 29, 2027. The pull request must be opened or updated with the forecast by the deadline; a later update is late. The submission check uses the pull request event timestamp, so a validation run that finishes after 11:30 p.m. does not itself make an on-time submission late. We do not accept late forecasts.
+For the 2026–27 season, forecasts are due by 11:30 p.m. America/Toronto time on each reference Saturday, from November 21, 2026 through May 29, 2027. The pull request must be opened or updated with the forecast by the deadline; a later update is late. The submission check uses the pull request event timestamp, so a validation run that finishes after 11:30 p.m. does not itself make an on-time submission late. We do not accept late forecasts.
 
 The hub's own retrospective model backfills run separately on Mondays and are not on-time team submissions.
 

@@ -9,7 +9,7 @@ Rscript scripts/hub_model_forecasts.R --from 2026-10-24 --to 2026-11-07
 Rscript scripts/hub_model_forecasts.R --reference-date 2026-10-24 --overwrite
 ```
 
-Without an explicit date, the script uses the most recent Saturday in `America/Toronto`. The [weekly pipeline](../.github/workflows/hub-model-outputs.yml) starts Mondays at 10:00 a.m. Toronto time: its first 2026–27 backfill is October 26 for the October 24 round; its last is May 31 for the May 29 round. The forecast and ensemble stages skip rounds outside the season automatically. Manual date ranges must contain Saturday endpoints.
+Without an explicit date, the script uses the most recent Saturday in `America/Toronto`. The [weekly pipeline](../.github/workflows/hub-model-outputs.yml) starts Mondays at 10:00 a.m. Toronto time: its first backfill for the 2026–27 challenge is November 23 for the November 21 round; its last is May 31 for the May 29 round. The forecast and ensemble stages skip rounds outside the season automatically. Manual date ranges must contain Saturday endpoints.
 
 For each reference Saturday, the script requires observations for the preceding Saturday from the Friday RVDSS update. It uses only observations on or before that date, then generates horizons 0–3, seven configured quantiles, and the existing four model IDs. Existing output files are left untouched unless `--overwrite` is given. Each new file receives structural checks and Hubverse validation.
 

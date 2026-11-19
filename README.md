@@ -4,7 +4,7 @@ Welcome to the AI4Casting Hub's repository for the 2026-2027 Respiratory Virus D
 [**Link to AI4Casting Hub's RVDSS Forecasting Official Page**](https://4castinghub.uoguelph.ca/respiratory-virus-detections)
 
 ### Challenge Overview
-The AI4Casting Hub is organizing a collaborative nowcasting and forecasting challenge for respiratory virus detections using RVDSS data. The first RVDSS data update is Friday, October 23, 2026, and the final forecast submission is Saturday, May 29, 2027. During this period, participating teams are asked to provide weekly probabilistic interval hindcasts, nowcasts and forecasts for respiratory virus detections, at national, provincial and regional levels.
+The AI4Casting Hub is organizing a collaborative nowcasting and forecasting challenge for respiratory virus detections using RVDSS data. The challenge starts with the first RVDSS data update on Friday, November 20, 2026, and the final forecast submission is Saturday, May 29, 2027. During this period, participating teams are asked to provide weekly probabilistic interval hindcasts, nowcasts and forecasts for respiratory virus detections, at national, provincial and regional levels.
 
 ### Forecasting Targets
 This challenge focuses on three primary targets:
@@ -20,8 +20,8 @@ Teams will be tasked with forecasting the percentage of positive lab detections 
 These predictions will be evaluated against confirmed RVDSS surveillance data released by public health agencies across Canada. For detailed information regarding the forecasting targets refer [model-output/README.md](https://github.com/ai4castinghub/rvdss-forecast/tree/main/model-output/README.md) file.
 
 ### Key Dates
-* **First data update**: Friday, October 23, 2026 (morning, America/Toronto)
-* **First forecast reference date**: Saturday, October 24, 2026
+* **Challenge start and first data update**: Friday, November 20, 2026 (morning, America/Toronto)
+* **First forecast reference date**: Saturday, November 21, 2026
 * **Final forecast reference date**: Saturday, May 29, 2027
 * **Weekly Submission Deadline**: Saturdays at 11:30 p.m. America/Toronto time. The Saturday is the forecast's `reference_date` and due date.
 
