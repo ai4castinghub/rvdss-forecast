@@ -1,0 +1,20 @@
+team_name: "AI4Casting_Hub"
+team_abbr: "AI4Casting_Hub"
+model_name: "Simple_Ens"
+model_abbr: "Simple_Ens"
+model_version: "1.0"
+model_contributors: [
+  {
+    "name": "AI4Casting Hub Administrator",
+    "affiliation": "AI4Casting Hub, University of Guelph",
+    "email": "4castinghub@uoguelph.ca"
+  }
+]
+website_url: "https://4castinghub.uoguelph.ca"
+license: "CC-BY-4.0"
+designated_model: true
+methods: "Simple ensemble using the arithmetic mean of component forecast quantiles"
+data_inputs: "Positive Laboratory Detections Percentage"
+methods_long: "An equally weighted arithmetic mean of submitted forecast quantiles for each reference date, target, horizon, target end date, and location. Excludes AI4Casting_Hub-Quantile_Baseline, AI4Casting_Hub-Flatline, AI4Casting_Hub-Ensemble_v1, AI4Casting_Hub-Weighted_Ensemble, AI4Casting_GPT_4o, AI4Casting_Hub-GPT_4o, and its own outputs. Other weekly ensemble calculations are unchanged from Ensemble_v1."
+ensemble_of_models: False
+ensemble_of_hub_models: True
