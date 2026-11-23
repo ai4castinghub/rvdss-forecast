@@ -15,11 +15,13 @@ For each reference Saturday, the script requires observations for the preceding 
 
 These Monday-generated hub forecasts are retrospective backfills, **not on-time team submissions**. The script skips Hubverse's submission-time check for these hub-owned files; team pull requests still have the Saturday 11:30 p.m. `America/Toronto` cutoff. Historical backfills use the currently available revised truth data, not an archived Friday vintage, so they should not be interpreted as strictly real-time forecasts.
 
-The Monday job runs these stages in order: concatenate truth and submitted model data; generate the four hub models; refresh the concatenated model data with those forecasts; generate `AI4Casting_Hub-Simple_Ens`; refresh the saved model data again so it also contains the ensemble. The concatenation script's `--models-only` option skips the unchanged truth stage. The ensemble remains a separate script, run automatically after the second model concatenation, and does not invoke `epipredict`.
+The Monday job concatenates data, generates the four hub models, refreshes model data, runs `all_hub_ensemble.R` for both ensembles, then refreshes model data again. Use `--models-only` to skip truth concatenation.
 
-`Simple_Ens` replaces `AI4Casting_Hub-Ensemble_v1` starting with the November 14, 2026 backfill. The retired model's forecasts and metadata are preserved, but the script no longer generates it. Components come from `auxiliary-data/concatenated_model_output.csv` for the requested reference date. `Simple_Ens` excludes `AI4Casting_Hub-Quantile_Baseline` and `AI4Casting_Hub-Flatline`, as well as itself, `AI4Casting_Hub-Ensemble_v1`, `AI4Casting_Hub-Weighted_Ensemble`, `AI4Casting_GPT_4o`, and `AI4Casting_Hub-GPT_4o`. All other ensemble calculations remain unchanged: the arithmetic mean of available component quantiles for each reference date, target, horizon, target end date, and location, with the same submission checks and validation.
+`Simple_Ens` replaces `Ensemble_v1` from November 14, 2026, preserving historical outputs. It averages available quantiles per task from `auxiliary-data/concatenated_model_output.csv`, excluding hub Flatline, Quantile_Baseline, both GPT_4o IDs, Team_Ens, Ensemble_v1, Weighted_Ensemble, and itself.
 
-To backfill the ensemble and refresh the saved model data without regenerating any component forecasts:
+`Team_Ens` averages available quantiles with equal weight per external model marked `designated_model: true`, including external hub ensembles, at horizons 0–3. One model is sufficient; no eligible submissions means no output. Forecasts go under `model-output/AI4Casting_Hub-Team_Ens/`.
+
+Backfill both ensembles without regenerating components; add `--overwrite` to replace existing forecasts:
 
 ```sh
 Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
@@ -27,7 +29,7 @@ Rscript scripts/all_hub_ensemble.R --reference-date 2026-11-14
 Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
 ```
 
-Both report scripts use `Simple_Ens` for the ensemble panel and keep both ensemble IDs out of the individual-model panel. Reports before November 14, 2026 are preserved: the bulk report script starts on that date, and the weekly script skips earlier dates. Regenerate the November 14 report with:
+Reports show only `Simple_Ens` in the ensemble panel and exclude `Simple_Ens`, `Team_Ens`, and `Ensemble_v1` from individual-model plots. Reports before November 14, 2026 are preserved. Regenerate that date with:
 
 ```sh
 python scripts/rvdss-report.py --reference-date 2026-11-14

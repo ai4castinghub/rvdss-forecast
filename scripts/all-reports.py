@@ -11,6 +11,7 @@ warnings.filterwarnings("ignore")
 
 ENSEMBLE_ID = 'AI4Casting_Hub-Simple_Ens'
 RETIRED_ENSEMBLE_ID = 'AI4Casting_Hub-Ensemble_v1'
+TEAM_ENSEMBLE_ID = 'AI4Casting_Hub-Team_Ens'
 
 # ---------------------------
 # LOAD DATA (ONCE)
@@ -141,7 +142,7 @@ for ref_date in ref_dates:
                     ref_yaxis['value'].max() * 2
                 ])
 
-                non_ensemble = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID])]
+                non_ensemble = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID, TEAM_ENSEMBLE_ID])]
 
                 for model in non_ensemble['model'].unique():
                     model_df = non_ensemble[non_ensemble['model'] == model]

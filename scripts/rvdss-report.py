@@ -10,6 +10,7 @@ warnings.filterwarnings("ignore")
 
 ENSEMBLE_ID = 'AI4Casting_Hub-Simple_Ens'
 RETIRED_ENSEMBLE_ID = 'AI4Casting_Hub-Ensemble_v1'
+TEAM_ENSEMBLE_ID = 'AI4Casting_Hub-Team_Ens'
 SIMPLE_ENS_START = datetime.strptime('2026-11-14', '%Y-%m-%d').date()
 
 parser = argparse.ArgumentParser(description='Generate a weekly Simple_Ens forecast report.')
@@ -113,7 +114,7 @@ with PdfPages(file_name) as pdf:
             # Left Plot: All Models (excluding ensemble)
             ax = axes[0]
             ax.set_ylim([ref_yaxis['value'].min()/2, ref_yaxis['value'].max() * 2])
-            non_ensemble_data = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID])]
+            non_ensemble_data = region_data[~region_data['model'].isin([ENSEMBLE_ID, RETIRED_ENSEMBLE_ID, TEAM_ENSEMBLE_ID])]
             for model in non_ensemble_data['model'].unique():
                 model_specific_data = non_ensemble_data[non_ensemble_data['model'] == model]
                 

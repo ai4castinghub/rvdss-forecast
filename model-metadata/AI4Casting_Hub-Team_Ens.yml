@@ -1,0 +1,20 @@
+team_name: "AI4Casting_Hub"
+team_abbr: "AI4Casting_Hub"
+model_name: "Team_Ens"
+model_abbr: "Team_Ens"
+model_version: "1.0"
+model_contributors: [
+  {
+    "name": "AI4Casting Hub Administrator",
+    "affiliation": "AI4Casting Hub, University of Guelph",
+    "email": "4castinghub@uoguelph.ca"
+  }
+]
+website_url: "https://4castinghub.uoguelph.ca"
+license: "CC-BY-4.0"
+designated_model: true
+methods: "Arithmetic mean of quantiles from designated external team models at weekly horizons 0-3"
+data_inputs: "Submitted forecasts of positive laboratory detection percentages from eligible external team models"
+methods_long: "An equally weighted arithmetic mean per eligible model of available submitted forecast quantiles for each reference date, target, horizon, target end date, and location, restricted to weekly horizons 0-3. Eligibility requires designated_model: true in the model metadata and excludes all AI4Casting Hub-owned models. External models marked ensemble_of_hub_models: true remain eligible. One eligible model is sufficient; no forecast is generated when no eligible submissions cover horizons 0-3 for the reference date."
+ensemble_of_models: true
+ensemble_of_hub_models: true

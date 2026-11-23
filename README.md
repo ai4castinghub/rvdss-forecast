@@ -27,7 +27,7 @@ These predictions will be evaluated against confirmed RVDSS surveillance data re
 
 The reference week corresponds to the epidemiological week (EW) running from Sunday to Saturday. Teams are expected to submit forecasts for the end of the reference week and the following three weeks. While teams are encouraged to forecast for all targets and time horizons, it is not required to submit predictions for every time period or virus. Forecasts for the previous week’s virus detections (horizon -1) are optional and will not be included in the primary scoring but may be helpful for calibration.
 
-The hub's Monday pipeline starts at 10:00 a.m. Toronto time: it concatenates truth and submitted models, backfills the four `epipredict` forecasts for the preceding Saturday, refreshes the model data, and generates the hub ensemble. See the [forecast script instructions](scripts/README.md). This does not extend the deadline for team submissions.
+The Monday pipeline runs at 10:00 a.m. Toronto time, updating data and generating hub forecasts, `Simple_Ens`, and `Team_Ens` when eligible team submissions exist. Team submission deadlines are unchanged. See the [forecast script instructions](scripts/README.md).
 
 ### Important Notes
 RVDSS dashboard data for the preceding week is updated on Friday mornings. The hub's data workflow checks for those updates on Fridays; teams should confirm the latest data are available before submitting.

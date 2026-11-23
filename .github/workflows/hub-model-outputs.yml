@@ -50,13 +50,13 @@ jobs:
       - name: Rebuild model data with hub forecasts
         run: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
 
-      - name: Generate previous Saturday's AI4Casting_Hub-Simple_Ens
+      - name: Generate previous Saturday's Simple_Ens and eligible Team_Ens
         env:
           FORECAST_REFERENCE_DATE: ${{ inputs.reference_date }}
           FORECAST_OVERWRITE: ${{ inputs.overwrite }}
         run: Rscript scripts/all_hub_ensemble.R
 
-      - name: Include Simple_Ens in saved model data
+      - name: Include Simple_Ens and available Team_Ens in saved model data
         run: Rscript scripts/build_concatenated_rvdss_target_and_forecast.R --models-only
 
       - name: Add new files
